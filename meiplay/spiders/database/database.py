@@ -3,8 +3,9 @@
 
 import MySQLdb
 import ConfigParser
+import os 
 
-class MysqlPal:
+class Database:
 	"""docstring for ClassName"""
 	def __init__(self,database):
 		self.connect(database)
@@ -12,14 +13,15 @@ class MysqlPal:
 	def connect(self,database):
 		#读取配置文件
 		cf = ConfigParser.ConfigParser()
-		cf.read("config.ini")
+		cf.read(os.path.dirname(__file__) + "/config.ini")
 		host = cf.get(database,"host")
 		user = cf.get(database,"user")
 		passwd = cf.get(database,"password")
 		db = cf.get(database,"database")
 		port = cf.get(database,"port")
+		charset = cf.get(database, "charset")
 		#连接
-		self.conn = MySQLdb.connect(host=host,user=user,passwd=passwd,db=db,port=int(port),charset="utf8")
+		self.conn = MySQLdb.connect(host=host,user=user,passwd=passwd,db=db,port=int(port),charset=charset)
 		self.conn.autocommit(True)
 		self.cursor = self.conn.cursor(cursorclass = MySQLdb.cursors.DictCursor)
 	def close(self):
@@ -105,27 +107,3 @@ class MysqlPal:
 		criteria['update'] = column.strip(',')
 		sql = self.makeSql('update',table,criteria)
 		return self.cursor.execute(sql)
-
-if __name__ == '__main__':
-	mp = MysqlPal('mysql')
-	print mp.getOne('SELECT * FROM invite_stat')
-	print mp.get('SELECT * FROM interview_stat')
-	print mp.execSql('SELECT COUNT(1) FROM interview_stat')
-	
-	criteria = {'select':'id,activity_name',
-				'count':'distinct state',
-				'where':'state = 1',
-				'orderby':'id',
-				'limit':'5',
-				'groupby':'id',
-				}
-	print mp.count('invite_stat')
-	print mp.find('activity',criteria)
-	print mp.findOne('activity',criteria)
-	print mp.count('activity',criteria)
-	data = {'activity_name':'test',
-			'start_time':'2015-04-08',
-			'end_time':'2015-04-22'}
-	print mp.save('activity',data)
-	print mp.update('activity',data,{'where':'id=19'})
-	mp.close()

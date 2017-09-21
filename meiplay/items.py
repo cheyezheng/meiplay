@@ -12,3 +12,11 @@ class MeiplayItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
+
+
+class DramaItem(scrapy.Item):
+	fenglin_name = scrapy.Field()
+	cover = scrapy.Field()
+	link = scrapy.Field()
+
+		
